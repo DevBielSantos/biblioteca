@@ -25,6 +25,9 @@ public class BibliotecaService {
        if (usuario == null) {
            throw new RuntimeException("Usuario não encontrado");
        }
+       if (usuario.getEmprestimos().size() >= 3) {
+           throw new IllegalStateException("Usuario atingiu o limite de emprestimos");
+       }
        Livro livro = livros.get(isbn);
        if (livro == null) {
            throw new RuntimeException("Livro não encontrado");
@@ -56,4 +59,37 @@ public class BibliotecaService {
        }
        throw new RuntimeException("Emprestimo nao encontrado");
    }
+
+   public void listarLivrosDisponiveis() {
+       for (Livro livro : livros.values()) {
+           if (livro.getStatus() == StatusLivro.DISPONIVEL) {
+               System.out.println("Titulo: "
+               + livro.getTitulo()
+               + " | Autor: "
+               + livro.getAutor()
+               +" | ISBN: "
+               +livro.getIsbn());
+           }
+       }
+   }
+
+   public void listarEmprestimoUsuario(int usuarioId) {
+       Usuario usuario = usuarios.get(usuarioId);
+       if (usuario == null) {
+           throw new RuntimeException("Usuario nao encontrado");
+       }
+       for (Emprestimo e : usuario.getEmprestimos()) {
+           System.out.println("Livro: "
+           + e.getLivro().getTitulo()
+           + " | Emprestado em: "
+           + e.getDataEmprestimo()
+           +" | Devolver até: "
+           + e.getDataDevolucaoPrevista());
+
+           if (LocalDate.now().isAfter(e.getDataDevolucaoPrevista()) && e.getDataDevolucaoReal() == null) {
+               System.out.println(" LIVRO ATRASADO!!!");
+           }
+       }
+   }
+
 }
