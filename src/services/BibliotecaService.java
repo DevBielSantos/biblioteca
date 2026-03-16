@@ -17,7 +17,7 @@ public class BibliotecaService {
        usuarios.put(usuario.getId(), usuario);
    }
 
-   public void cadastarLivro(Livro livro) {
+   public void cadastrarLivro(Livro livro) {
        livros.put(livro.getIsbn(), livro);
    }
    public void emprestarLivro(int usuarioId, String isbn) {
@@ -30,12 +30,30 @@ public class BibliotecaService {
            throw new RuntimeException("Livro não encontrado");
        }
        if (livro.getStatus() != StatusLivro.DISPONIVEL) {
-           throw new RuntimeException("Livro indisponivel");
+           throw new IllegalStateException("Livro indisponivel");
        }
 
        LocalDate hoje = LocalDate.now();
        LocalDate devolucaoPrevista = hoje.plusDays(7);
 
        Emprestimo emprestimo = new Emprestimo(usuario, livro, hoje, devolucaoPrevista);
+       livro.emprestar();
+       usuario.addEmprestimo(emprestimo);
+   }
+
+   public void devolverLivro(int usuarioId, String isbn) {
+       Usuario usuario = usuarios.get(usuarioId);
+       if (usuario == null) {
+           throw new RuntimeException("Usuario não encontrado");
+       }
+       for (Emprestimo e : usuario.getEmprestimos()) {
+           if (e.getLivro().getIsbn().equals(isbn) && e.getDataDevolucaoReal() == null) {
+               e.registrarDevolucao(LocalDate.now());
+               e.getLivro().devolver();
+               return;
+
+           }
+       }
+       throw new RuntimeException("Emprestimo nao encontrado");
    }
 }

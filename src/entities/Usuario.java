@@ -28,6 +28,10 @@ public class Usuario {
         return email;
     }
 
+    public List<Emprestimo> getEmprestimos() {
+        return emprestimos;
+    }
+
     public void addEmprestimo(Emprestimo emprestimo) {
         emprestimos.add(emprestimo);
 
